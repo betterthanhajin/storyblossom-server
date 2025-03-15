@@ -5,7 +5,10 @@ import { Node } from "../models/node.model";
 import { Choice } from "../models/choice.model";
 
 // Get all published stories
-export const getAllStories = async (req: Request, res: Response) => {
+export const getAllStories = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const storyRepository = AppDataSource.getRepository(Story);
 
@@ -42,7 +45,10 @@ export const getAllStories = async (req: Request, res: Response) => {
 };
 
 // Get story by ID
-export const getStoryById = async (req: Request, res: Response) => {
+export const getStoryById = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { id } = req.params;
     const storyRepository = AppDataSource.getRepository(Story);
@@ -53,12 +59,14 @@ export const getStoryById = async (req: Request, res: Response) => {
     });
 
     if (!story) {
-      return res.status(404).json({ message: "Story not found" });
+      res.status(404).json({ message: "Story not found" });
+      return;
     }
 
     // Check if story is published or if requester is the author
     if (!story.isPublished && (!req.user || req.user.id !== story.authorId)) {
-      return res.status(403).json({ message: "Access denied" });
+      res.status(403).json({ message: "Access denied" });
+      return;
     }
 
     // Format response
@@ -79,16 +87,21 @@ export const getStoryById = async (req: Request, res: Response) => {
 };
 
 // Create new story
-export const createStory = async (req: Request, res: Response) => {
+export const createStory = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     if (!req.user) {
-      return res.status(401).json({ message: "Unauthorized" });
+      res.status(401).json({ message: "Unauthorized" });
+      return;
     }
 
     const { title, description, coverImage } = req.body;
 
     if (!title) {
-      return res.status(400).json({ message: "Title is required" });
+      res.status(400).json({ message: "Title is required" });
+      return;
     }
 
     const storyRepository = AppDataSource.getRepository(Story);
@@ -130,10 +143,14 @@ export const createStory = async (req: Request, res: Response) => {
 };
 
 // Update story
-export const updateStory = async (req: Request, res: Response) => {
+export const updateStory = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     if (!req.user) {
-      return res.status(401).json({ message: "Unauthorized" });
+      res.status(401).json({ message: "Unauthorized" });
+      return;
     }
 
     const { id } = req.params;
@@ -148,12 +165,14 @@ export const updateStory = async (req: Request, res: Response) => {
     });
 
     if (!story) {
-      return res.status(404).json({ message: "Story not found" });
+      res.status(404).json({ message: "Story not found" });
+      return;
     }
 
     // Check if user is the author
     if (story.authorId !== req.user.id) {
-      return res.status(403).json({ message: "Access denied" });
+      res.status(403).json({ message: "Access denied" });
+      return;
     }
 
     // Update story fields
@@ -176,10 +195,14 @@ export const updateStory = async (req: Request, res: Response) => {
 };
 
 // Delete story
-export const deleteStory = async (req: Request, res: Response) => {
+export const deleteStory = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     if (!req.user) {
-      return res.status(401).json({ message: "Unauthorized" });
+      res.status(401).json({ message: "Unauthorized" });
+      return;
     }
 
     const { id } = req.params;
@@ -191,12 +214,14 @@ export const deleteStory = async (req: Request, res: Response) => {
     });
 
     if (!story) {
-      return res.status(404).json({ message: "Story not found" });
+      res.status(404).json({ message: "Story not found" });
+      return;
     }
 
     // Check if user is the author
     if (story.authorId !== req.user.id) {
-      return res.status(403).json({ message: "Access denied" });
+      res.status(403).json({ message: "Access denied" });
+      return;
     }
 
     // Delete the story

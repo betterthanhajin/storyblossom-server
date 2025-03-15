@@ -16,18 +16,20 @@ export const authMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
     // Check for token in headers
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "Authentication required" });
+      res.status(401).json({ message: "Authentication required" });
+      return;
     }
 
     // Extract token
     const token = authHeader.split(" ")[1];
     if (!token) {
-      return res.status(401).json({ message: "No token provided" });
+      res.status(401).json({ message: "No token provided" });
+      return;
     }
 
     // Verify token
@@ -42,7 +44,8 @@ export const authMiddleware = async (
     });
 
     if (!user) {
-      return res.status(401).json({ message: "Invalid token" });
+      res.status(401).json({ message: "Invalid token" });
+      return;
     }
 
     // Add user to request object
@@ -50,6 +53,6 @@ export const authMiddleware = async (
     next();
   } catch (error) {
     console.error("Auth middleware error:", error);
-    return res.status(401).json({ message: "Authentication failed" });
+    res.status(401).json({ message: "Authentication failed" });
   }
 };

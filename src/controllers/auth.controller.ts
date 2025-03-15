@@ -5,13 +5,14 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 // Register new user
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password, username } = req.body;
 
     // Validate input
     if (!email || !password || !username) {
-      return res.status(400).json({ message: "All fields are required" });
+      res.status(400).json({ message: "All fields are required" });
+      return;
     }
 
     const userRepository = AppDataSource.getRepository(User);
@@ -19,7 +20,8 @@ export const register = async (req: Request, res: Response) => {
     // Check if user already exists
     const existingUser = await userRepository.findOne({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      res.status(400).json({ message: "User already exists" });
+      return;
     }
 
     // Hash password
@@ -57,15 +59,14 @@ export const register = async (req: Request, res: Response) => {
 };
 
 // Login user
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 
     // Validate input
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Email and password are required" });
+      res.status(400).json({ message: "Email and password are required" });
+      return;
     }
 
     const userRepository = AppDataSource.getRepository(User);
@@ -73,13 +74,15 @@ export const login = async (req: Request, res: Response) => {
     // Find user by email
     const user = await userRepository.findOne({ where: { email } });
     if (!user) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      res.status(401).json({ message: "Invalid credentials" });
+      return;
     }
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      res.status(401).json({ message: "Invalid credentials" });
+      return;
     }
 
     // Generate JWT
@@ -104,11 +107,15 @@ export const login = async (req: Request, res: Response) => {
 };
 
 // Get current user profile
-export const getProfile = async (req: Request, res: Response) => {
+export const getProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     // User is attached to request object through auth middleware
     if (!req.user) {
-      return res.status(401).json({ message: "Unauthorized" });
+      res.status(401).json({ message: "Unauthorized" });
+      return;
     }
 
     // Return user info (excluding password)
