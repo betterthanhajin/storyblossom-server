@@ -3,13 +3,14 @@ import express, { Application } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
-// import { createConnection } from "typeorm";
+import { DataSource } from "typeorm";
+import { User } from "./models/user.model";
+import { Story } from "./models/story.model";
+import { Node } from "./models/node.model";
+import { Choice } from "./models/choice.model";
 
 // Load environment variables
 dotenv.config();
-
-// Import routes (to be created later)
-import authRoutes from "./routes/auth.routes";
 
 // Initialize Express app
 const app: Application = express();
@@ -21,8 +22,9 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.use("/api/auth", authRoutes);
+// Import routes (필요한 경우)
+// app.use('/api/auth', authRoutes);
+// app.use('/api/stories', storyRoutes);
 
 // Health check route
 app.get("/health", (req, res) => {
@@ -32,13 +34,27 @@ app.get("/health", (req, res) => {
 // Database connection and server start
 const startServer = async () => {
   try {
-    // Will configure this later in the database setup
-    // await createConnection();
+    const AppDataSource = new DataSource({
+      type: "postgres",
+      host: process.env.DB_HOST || "localhost",
+      port: parseInt(process.env.DB_PORT || "5432"),
+      username: process.env.DB_USERNAME || "postgres",
+      password: process.env.DB_PASSWORD || "postgres",
+      database: process.env.DB_DATABASE || "storyblossom",
+      entities: [User, Story, Node, Choice],
+      synchronize: true,
+      logging: true,
+    });
+
+    await AppDataSource.initialize();
+    console.log("Database connected successfully");
+
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
   } catch (error) {
     console.error("Error starting server:", error);
+    console.error(error);
     process.exit(1);
   }
 };

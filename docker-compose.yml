@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:14
+    container_name: storyblossom-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: purenarim
+      POSTGRES_PASSWORD: wownd1210
+      POSTGRES_DB: storyblossom
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # 추후 필요시 pgAdmin 추가 가능
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: storyblossom-pgadmin
+  #   ports:
+  #     - "5050:80"
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@example.com
+  #     PGADMIN_DEFAULT_PASSWORD: admin
+  #   depends_on:
+  #     - postgres
+  #   restart: unless-stopped
+
+volumes:
+  postgres-data:
