@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getRepository } from "typeorm";
+import { AppDataSource } from "../config/data-source";
 import { Story } from "../models/story.model";
 import { Node } from "../models/node.model";
 import { Choice } from "../models/choice.model";
@@ -7,7 +7,7 @@ import { Choice } from "../models/choice.model";
 // Get all published stories
 export const getAllStories = async (req: Request, res: Response) => {
   try {
-    const storyRepository = getRepository(Story);
+    const storyRepository = AppDataSource.getRepository(Story);
 
     // Get only published stories for public view
     const stories = await storyRepository.find({
@@ -45,7 +45,7 @@ export const getAllStories = async (req: Request, res: Response) => {
 export const getStoryById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const storyRepository = getRepository(Story);
+    const storyRepository = AppDataSource.getRepository(Story);
 
     const story = await storyRepository.findOne({
       where: { id },
@@ -91,8 +91,8 @@ export const createStory = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Title is required" });
     }
 
-    const storyRepository = getRepository(Story);
-    const nodeRepository = getRepository(Node);
+    const storyRepository = AppDataSource.getRepository(Story);
+    const nodeRepository = AppDataSource.getRepository(Node);
 
     // Create the story
     const newStory = storyRepository.create({
@@ -139,7 +139,7 @@ export const updateStory = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { title, description, coverImage, isDraft, isPublished } = req.body;
 
-    const storyRepository = getRepository(Story);
+    const storyRepository = AppDataSource.getRepository(Story);
 
     // Find the story
     const story = await storyRepository.findOne({
@@ -183,7 +183,7 @@ export const deleteStory = async (req: Request, res: Response) => {
     }
 
     const { id } = req.params;
-    const storyRepository = getRepository(Story);
+    const storyRepository = AppDataSource.getRepository(Story);
 
     // Find the story
     const story = await storyRepository.findOne({

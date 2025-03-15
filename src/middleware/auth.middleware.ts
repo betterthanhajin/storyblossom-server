@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { getRepository } from "typeorm";
+import { AppDataSource } from "../config/data-source";
 import { User } from "../models/user.model";
 
 // Extend Express Request type to include user property
@@ -36,8 +36,10 @@ export const authMiddleware = async (
     };
 
     // Get user from database
-    const userRepository = getRepository(User);
-    const user = await userRepository.findOne(decoded.id);
+    const userRepository = AppDataSource.getRepository(User);
+    const user = await userRepository.findOne({
+      where: { id: decoded.id },
+    });
 
     if (!user) {
       return res.status(401).json({ message: "Invalid token" });
